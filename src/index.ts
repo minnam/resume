@@ -32,7 +32,7 @@ const resume = {
   education: [
     {
       school: 'BCIT',
-      program: 'Bachelor’s Degree in CST',
+      program: "Bachelor's Degree in CST",
       description: 'Human Computer Interface Option',
       from: 'Jan 2018',
       to: 'Current'
@@ -48,8 +48,27 @@ const resume = {
 
 const requestListener = function (req: any, res: any) {
   res.writeHead(200)
-  const template = readFileSync( `${__dirname}/template/main.html`)
-  res.end(template)
+  const educationTemplate = readFileSync( `${__dirname}/template/education.html`, 'utf8')
+  const mainTemplate = readFileSync( `${__dirname}/template/main.html`, 'utf8')
+    .replace('{{profile.name}}', resume.profile.name)
+    .replace('{{profile.job}}', resume.profile.job)
+    .replace('{{profile.description}}', resume.profile.description)
+    .replace('{{education}}', (() => {
+      let education = ''
+
+      resume.education.map((item) => {
+        education += `${educationTemplate}`
+          .replace('{{school}}', item.school)
+          .replace('{{program}}', item.program)
+          .replace('{{description}}', item.description || '')
+          .replace('{{from}}', item.from)
+          .replace('{{to}}', item.to)
+      })
+
+      return education
+    })())
+
+  res.end(mainTemplate)
 };
 
 const server = createServer(requestListener)
